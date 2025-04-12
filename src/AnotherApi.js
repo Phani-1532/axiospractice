@@ -1,49 +1,60 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const AnotherApi = () => {
-  const [state, setState] = useState([])
-  useEffect(() => {
-    axios.get('https://jsonplaceholder.typicode.com/posts')
-    .then(response => {
-        setState(response.data)
-    })
+    const [data, setData] = useState([])
 
-    axios.post('https://jsonplaceholder.typicode.com/posts', {
-        id:1,
-        title: 'Phani Power 💪',
-    })
-    .then(response => {
-        setState(prev => [...prev, response.data])
-    })
+    const fetchData = async () => {
+        let response = await axios.get('http://localhost:3000/products')
+        setData(response.data)
+    }
 
-    axios.put('https://jsonplaceholder.typicode.com/posts/1', {
-        id:1,
-        title: 'Phani Power is strength 💪',
-    })
-    .then(response => {
-        setState(prev => [...prev, response.data])
-    })
+    const postData = async () => {
+        let response = await axios.post('http://localhost:3000/products', {
+            id: "4",
+            name: 'New Product',
+            price: 48.99
+        })
+        setData([...data, response.data])
+    }
 
-    axios.delete('https://jsonplaceholder.typicode.com/posts/1')
-    .then(response => {
-        setState(prev => prev.filter(item => item.id !== 1))
-    })
-      
-  }, [])
-    console.log(state)
-  return (
-    <>
-        {state.map(item => {
-            return (
-                <div key={item.id}>
-                    <h1>{item.title}</h1>
-                </div>
-            )
-        })}
-    </>
-  )
+    const putData = async () => {
+        let response = await axios.put('http://localhost:3000/products/4', {
+            id: "4",
+            name: 'New Product updated',
+            price: 58.99
+        })
+        setData(data.map(item => item.id === '4' ? response.data :item))
+    }
+
+    const deleteData = async () => {
+        await axios.delete('http://localhost:3000/products/4')
+        setData(data.filter(item => item.id !== '4'))
+        
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    return (
+        <>
+            <h1>Another API</h1>
+            <button onClick={fetchData}>GET</button>
+            <button onClick={postData}>POST</button>
+            <button onClick={putData}>PUT</button>
+            <button onClick={deleteData}>DELETE</button>
+
+            <div className='container'>
+                {data.map((item) => (
+                    <div key={item.id} className='product'>
+                        <h2>{item.name}</h2>
+                        <p>{item.price}</p>
+                    </div>
+                ))}
+            </div>
+        </>
+    )
 }
 
 export default AnotherApi
